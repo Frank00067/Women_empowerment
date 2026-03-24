@@ -1,7 +1,9 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { SetupMissingEnv } from "./components/SetupMissingEnv";
 import { useAuth } from "./context/AuthContext";
+import { isSupabaseConfigured } from "./lib/supabase";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
@@ -18,6 +20,10 @@ import { AdminDashboard } from "./pages/AdminDashboard";
 
 function App() {
   const { user, loading } = useAuth();
+
+  if (!isSupabaseConfigured) {
+    return <SetupMissingEnv />;
+  }
 
   if (loading) {
     return (

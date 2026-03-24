@@ -1,4 +1,4 @@
-import { supabase } from "./lib/supabase";
+import { getSupabase, isSupabaseConfigured } from "./lib/supabase";
 
 export async function api<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers);
@@ -6,10 +6,16 @@ export async function api<T = unknown>(path: string, options: RequestInit = {}):
     headers.set("Content-Type", "application/json");
   }
 
-  const { data: sessionData } = await supabase.auth.getSession();
-  const token = sessionData.session?.access_token;
-  if (token) {
-    headers.set("Authorization", `Bearer ${token}`);
+  if (isSupabaseConfigured) {
+    try {
+      const { data: sessionData } = await getSupabase().auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+    } catch {
+      /* session unavailable */
+    }
   }
 
   const res = await fetch(`/api${path}`, { ...options, headers });

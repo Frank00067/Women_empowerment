@@ -15,3 +15,5 @@ const app = createApp();
 app.listen(PORT, () => {
   console.log(`API listening on http://localhost:${PORT} (Supabase-backed)`);
 });
+const supabaseUrl = process.env.SUPABASE_URL;
+console.log(supabaseUrl);

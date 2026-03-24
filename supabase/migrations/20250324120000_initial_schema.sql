@@ -3,7 +3,27 @@
 
 create extension if not exists "pgcrypto";
 
--- ── Helper functions (RLS-safe; SECURITY DEFINER) ───────────────────────────
+-- ── profiles (1:1 with auth.users) ─────────────────────────────────────────
+-- NOTE: Table must exist before any function body references public.profiles.
+create table public.profiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  email text not null,
+  full_name text not null default '',
+  role text not null check (role in ('learner', 'employer', 'admin')),
+  headline text not null default '',
+  bio text not null default '',
+  phone text not null default '',
+  location text not null default '',
+  skills jsonb not null default '[]'::jsonb,
+  cv_data jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index profiles_role_idx on public.profiles (role);
+create index profiles_email_idx on public.profiles (lower(email));
+
+-- ── Helper functions (RLS-safe; must come after profiles table) ────────────
 create or replace function public.is_admin(uid uuid)
 returns boolean
 language sql
@@ -26,25 +46,6 @@ set search_path = public
 as $$
   select p.role from public.profiles p where p.id = uid limit 1;
 $$;
-
--- ── profiles (1:1 with auth.users) ─────────────────────────────────────────
-create table public.profiles (
-  id uuid primary key references auth.users (id) on delete cascade,
-  email text not null,
-  full_name text not null default '',
-  role text not null check (role in ('learner', 'employer', 'admin')),
-  headline text not null default '',
-  bio text not null default '',
-  phone text not null default '',
-  location text not null default '',
-  skills jsonb not null default '[]'::jsonb,
-  cv_data jsonb,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create index profiles_role_idx on public.profiles (role);
-create index profiles_email_idx on public.profiles (lower(email));
 
 -- New Supabase user → profile (public signup: learner | employer only)
 create or replace function public.handle_new_user()

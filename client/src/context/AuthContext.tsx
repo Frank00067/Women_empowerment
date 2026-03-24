@@ -9,7 +9,7 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { api } from "../api";
-import { supabase } from "../lib/supabase";
+import { getSupabase, isSupabaseConfigured } from "../lib/supabase";
 import type { User, UserRole } from "../types";
 
 interface AuthState {
@@ -39,24 +39,52 @@ async function loadMeFromApi(session: Session | null): Promise<User | null> {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => isSupabaseConfigured);
 
   const refreshUser = useCallback(async () => {
+    if (!isSupabaseConfigured) return;
+    const supabase = getSupabase();
     const { data } = await supabase.auth.getSession();
     const me = await loadMeFromApi(data.session);
     setUser(me);
   }, []);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
+    const supabase = getSupabase();
     let mounted = true;
+
+    void (async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!mounted) return;
+        const me = await loadMeFromApi(data.session);
+        if (mounted) setUser(me);
+      } catch {
+        if (mounted) setUser(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       void (async () => {
         if (!mounted) return;
-        const me = await loadMeFromApi(session);
-        setUser(me);
-        setLoading(false);
+        try {
+          const me = await loadMeFromApi(session);
+          setUser(me);
+        } catch {
+          setUser(null);
+        } finally {
+          setLoading(false);
+        }
       })();
     });
+
     return () => {
       mounted = false;
       sub.subscription.unsubscribe();
@@ -64,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
+    const supabase = getSupabase();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message);
     await refreshUser();
@@ -76,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name: string;
       role: Exclude<UserRole, "admin">;
     }) => {
+      const supabase = getSupabase();
       const { data: res, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -100,7 +130,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(async () => {
-    await supabase.auth.signOut();
+    if (!isSupabaseConfigured) return;
+    await getSupabase().auth.signOut();
     setUser(null);
   }, []);
 
