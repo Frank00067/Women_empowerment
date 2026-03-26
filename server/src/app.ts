@@ -14,7 +14,12 @@ import dashboardRoutes from "./routes/dashboard";
 
 export function createApp() {
   const app = express();
-  app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+  const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.CLIENT_URL,
+  ].filter(Boolean) as string[];
+
+  app.use(cors({ origin: allowedOrigins, credentials: true }));
   app.use(express.json());
 
   app.get("/", (_req, res) => res.json({ message: "API is running" }));

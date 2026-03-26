@@ -18,7 +18,8 @@ export async function api<T = unknown>(path: string, options: RequestInit = {}):
     }
   }
 
-  const res = await fetch(`/api${path}`, { ...options, headers });
+  const base = import.meta.env.VITE_API_URL ?? "";
+  const res = await fetch(`${base}/api${path}`, { ...options, headers });
   if (res.status === 204) return undefined as T;
 
   let body: unknown = null;
