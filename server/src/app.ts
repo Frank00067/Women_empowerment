@@ -17,10 +17,20 @@ export function createApp() {
   const allowedOrigins = [
     "http://localhost:5173",
     "https://rise-digital-app.vercel.app",
+    "https://rise-digital-i439q1vts-frank00067s-projects.vercel.app",
     process.env.CLIENT_URL,
   ].filter(Boolean) as string[];
 
-  app.use(cors({ origin: allowedOrigins, credentials: true }));
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowed =
+        allowedOrigins.includes(origin) ||
+        /^https:\/\/rise-digital.*\.vercel\.app$/.test(origin);
+      callback(null, allowed);
+    },
+    credentials: true,
+  }));
   app.use(express.json());
 
   app.get("/", (_req, res) => res.json({ message: "API is running" }));
