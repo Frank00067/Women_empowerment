@@ -16,6 +16,7 @@ export function createApp() {
   const app = express();
   const allowedOrigins = [
     "http://localhost:5173",
+    "https://rise-digital-app.vercel.app",
     process.env.CLIENT_URL,
   ].filter(Boolean) as string[];
 
