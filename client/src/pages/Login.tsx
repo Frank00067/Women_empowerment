@@ -5,7 +5,8 @@ import { useAuth } from "../context/AuthContext";
 export function Login() {
   const { user, login } = useAuth();
   const location = useLocation();
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+  const from = (location.state as { from?: { pathname: string }; message?: string })?.from?.pathname;
+  const successMessage = (location.state as { message?: string })?.message;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +39,11 @@ export function Login() {
         <p className="muted" style={{ marginTop: "-0.5rem" }}>
           Log in to continue courses, applications, and your dashboard.
         </p>
+        {successMessage && (
+          <div className="error-banner" style={{ background: "#e4f2f0", color: "#0f4d4d" }}>
+            {successMessage}
+          </div>
+        )}
         {error && <div className="error-banner">{error}</div>}
         <form onSubmit={onSubmit}>
           <div className="field">

@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import type { UserRole } from "../models";
-import { createAnonClient, createUserClient } from "../lib/supabase";
+import { createAnonClient, createServiceClient } from "../lib/supabase";
 
 export interface AuthedRequest extends Request {
   user?: { id: string; role: UserRole; email: string; name: string };
@@ -27,14 +27,23 @@ export function authMiddleware(
         res.status(401).json({ error: "Invalid or expired token" });
         return;
       }
-      const sb = createUserClient(token);
-      const { data: profile, error: pErr } = await sb
+
+      // Use service client to bypass RLS for profile lookup
+      // (token is already validated above via getUser)
+      const svc = createServiceClient();
+      const { data: profile, error: pErr } = await svc
         .from("profiles")
         .select("role, full_name, email")
         .eq("id", data.user.id)
         .maybeSingle();
 
-      if (pErr || !profile) {
+      if (pErr) {
+        console.error("profiles query error:", pErr);
+        res.status(500).json({ error: pErr.message });
+        return;
+      }
+      if (!profile) {
+        console.error("no profile found for user:", data.user.id);
         res.status(401).json({ error: "Profile not found" });
         return;
       }
@@ -47,8 +56,9 @@ export function authMiddleware(
       };
       req.accessToken = token;
       next();
-    } catch {
-      res.status(401).json({ error: "Invalid token" });
+    } catch (err) {
+      console.error("authMiddleware error:", err);
+      res.status(500).json({ error: "Internal server error" });
     }
   })();
 }

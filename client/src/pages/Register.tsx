@@ -1,10 +1,11 @@
 import { FormEvent, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type { UserRole } from "../types";
 
 export function Register() {
   const { user, register } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,8 +28,10 @@ export function Register() {
       const { needsEmailConfirmation } = await register({ name, email, password, role });
       if (needsEmailConfirmation) {
         setInfo(
-          "Please confirm your email using the link Supabase sent you, then log in. (You can disable email confirmation in the Supabase dashboard for local development.)"
+          "Please confirm your email using the link Supabase sent you, then log in."
         );
+      } else {
+        navigate("/login", { state: { message: "Account created! Please log in." } });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");

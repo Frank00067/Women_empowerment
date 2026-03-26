@@ -120,10 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw new Error(error.message);
 
       const needsEmailConfirmation = !res.session;
-      if (res.session) {
-        const me = await loadMeFromApi(res.session);
-        setUser(me);
-      }
+      // Don't auto-login after registration — redirect to login page
       return { needsEmailConfirmation };
     },
     []

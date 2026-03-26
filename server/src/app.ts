@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./swagger";
 import authRoutes from "./routes/auth";
 import coursesRoutes from "./routes/courses";
 import jobsRoutes from "./routes/jobs";
@@ -12,9 +14,11 @@ import dashboardRoutes from "./routes/dashboard";
 
 export function createApp() {
   const app = express();
-  app.use(cors());
+  app.use(cors({ origin: "http://localhost:5173", credentials: true }));
   app.use(express.json());
 
+  app.get("/", (_req, res) => res.json({ message: "API is running" }));
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
   app.use("/api/auth", authRoutes);
