@@ -22,6 +22,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <NavLink to="/mentorship" className={({ isActive }) => (isActive ? "active" : "")}>
             Mentorship
           </NavLink>
+          <NavLink to="/workshops" className={({ isActive }) => (isActive ? "active" : "")}>
+            Workshops
+          </NavLink>
           {user?.role === "learner" && (
             <>
               <NavLink to="/cv" className={({ isActive }) => (isActive ? "active" : "")}>

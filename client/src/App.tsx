@@ -12,6 +12,7 @@ import { CourseDetail } from "./pages/CourseDetail";
 import { Jobs } from "./pages/Jobs";
 import { CVBuilder } from "./pages/CVBuilder";
 import { Mentorship } from "./pages/Mentorship";
+import { Workshops } from "./pages/Workshops";
 import { Certificates } from "./pages/Certificates";
 import { Notifications } from "./pages/Notifications";
 import { LearnerDashboard } from "./pages/LearnerDashboard";
@@ -44,6 +45,7 @@ function App() {
         <Route path="/courses/:id" element={<CourseDetail />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/mentorship" element={<Mentorship />} />
+        <Route path="/workshops" element={<Workshops />} />
 
         <Route
           path="/notifications"

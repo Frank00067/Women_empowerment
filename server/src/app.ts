@@ -11,6 +11,8 @@ import profileRoutes from "./routes/profile";
 import certificatesRoutes from "./routes/certificates";
 import notificationsRoutes from "./routes/notifications";
 import dashboardRoutes from "./routes/dashboard";
+import mentorsRoutes from "./routes/mentors";
+import workshopsRoutes from "./routes/workshops";
 
 export function createApp() {
   const app = express();
@@ -46,6 +48,8 @@ export function createApp() {
   app.use("/api/certificates", certificatesRoutes);
   app.use("/api/notifications", notificationsRoutes);
   app.use("/api/dashboard", dashboardRoutes);
+  app.use("/api/mentors", mentorsRoutes);
+  app.use("/api/workshops", workshopsRoutes);
 
   return app;
 }
