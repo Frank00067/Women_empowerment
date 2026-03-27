@@ -1,14 +1,24 @@
 import { Router } from "express";
-import { createServiceClient } from "../lib/supabase";
 
 const router = Router();
 
-// GET /api/mentors — public list
 router.get("/", async (_req, res) => {
-  const sb = createServiceClient();
-  const { data, error } = await sb.from("mentors").select("*").order("name");
-  if (error) { res.status(500).json({ error: error.message }); return; }
-  res.json(data ?? []);
+  try {
+    const r = await fetch(
+      `${process.env.SUPABASE_URL}/rest/v1/mentors?select=*&order=name`,
+      {
+        headers: {
+          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+        },
+      }
+    );
+    const data = await r.json();
+    if (!r.ok) { res.status(500).json({ error: JSON.stringify(data) }); return; }
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e instanceof Error ? e.message : "Failed" });
+  }
 });
 
 export default router;
