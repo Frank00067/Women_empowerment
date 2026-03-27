@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { api } from "../api";
+import { getSupabase } from "../lib/supabase";
 
 interface Workshop {
-  id: number;
+  id: string;
   title: string;
   category: string;
   description: string;
   date: string;
-  image_url: string;
 }
 
 export function Workshops() {
@@ -15,9 +14,12 @@ export function Workshops() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api<Workshop[]>("/workshops")
-      .then(setWorkshops)
-      .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
+    const sb = getSupabase();
+    sb.from("workshops").select("*").order("date")
+      .then(({ data, error: err }) => {
+        if (err) { setError(err.message); return; }
+        setWorkshops(data ?? []);
+      });
   }, []);
 
   if (error) return <div className="container section"><div className="error-banner">{error}</div></div>;
