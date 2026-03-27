@@ -13,8 +13,8 @@ interface Mentor {
 export function Mentorship() {
   const [mentors, setMentors] = useState<Mentor[] | null>(null);
   const [resources, setResources] = useState<ResourceItem[] | null>(null);
-  const [requested, setRequested] = useState<Set<string>>(new Set());
-  const [requesting, setRequesting] = useState<string | null>(null);
+  const [requested, setRequested] = useState<Set<number>>(new Set());
+  const [requesting, setRequesting] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export function Mentorship() {
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
   }, []);
 
-  async function requestMentor(mentorId: string) {
+  async function requestMentor(mentorId: number) {
     setRequesting(mentorId);
     try {
       await api(`/mentors/${mentorId}/request`, { method: "POST", body: JSON.stringify({ message: "" }) });
