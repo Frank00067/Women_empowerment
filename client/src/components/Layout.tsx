@@ -86,7 +86,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <p>
           Empowering young African women with digital skills, career tools, and mentorship.
         </p>
-        <p className="muted small">© {new Date().getFullYear()} Rise Digital · Demo platform</p>
+        <p className="muted small">© {new Date().getFullYear()} Rise Digital · Built for Africa</p>
       </footer>
     </div>
   );
