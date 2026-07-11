@@ -1,0 +1,138 @@
+"Hi, my name is Frank Nkurunziza, and this is ALU InternHub — a mobile application I built using Flutter and Firebase that connects ALU students with student-led startups for internship opportunities.
+
+The problem I'm solving is simple: ALU students need internship experience, and ALU startups need talent — but there's no dedicated platform connecting them. ALU InternHub bridges that gap.
+
+In this demo I'll walk you through the authentication, Firebase integration, state management, and all core features."
+
+PART 1 — AUTHENTICATION (0:30 – 1:30)
+Show the onboarding screen
+
+"When a user opens the app, they land on the onboarding screen where they choose their role — either Student or Startup. This role-based design is intentional. Students and startups have completely different needs, so they get completely different experiences."
+
+Register as a Startup
+
+"Let me first register as a startup. I'll use an ALU email address — notice that if I try a non-ALU email, the app rejects it with a validation error. This enforces that only ALU community members can join the platform."
+
+Type a non-ALU email → show error → then use a real ALU email
+
+"Now let me switch to my Firebase Console — you can see this new user appearing in the Authentication tab in real time."
+
+Show Firebase Console → Authentication → Users
+
+"And in Firestore, under the users collection, the user document was automatically created with their role, email, and full name."
+
+Show Firestore → users collection → new document
+
+PART 2 — STARTUP ONBOARDING & VERIFICATION (1:30 – 2:30)
+Show CreateStartup screen
+
+"After a startup registers, they're taken directly to the startup creation screen. They fill in their startup name, description, industry, stage, and team size."
+
+"The key feature here is the ALU Verification Code field. This is how we ensure only legitimate ALU-registered startups can post opportunities. When they submit, their startup is created with a verification status of pending."
+
+Fill in the form and submit
+
+"Let me show you Firestore — the startup document is now created with verificationStatus set to pending. Until an admin approves it, this startup cannot post visible opportunities."
+
+Show Firestore → startups collection → new document → verificationStatus: pending
+
+"For this demo, I'll manually change the status to approved in Firestore to simulate the admin verification."
+
+Change verificationStatus to approved in Firestore Console
+
+"Notice how the app updates in real time — the pending warning banner disappears because we're using Firestore streams, not one-time fetches."
+
+PART 3 — POSTING AN OPPORTUNITY (2:30 – 3:30)
+Show Post Opportunity screen
+
+"Now as an approved startup, I can post an opportunity. I'll fill in the role title, category, description, duration, whether it's remote and paid, required skills, number of spots, and the application deadline."
+
+Fill in the form quickly
+
+"When I tap Post Opportunity, watch the Firestore Console."
+
+Submit and immediately show Firestore
+
+"The opportunity document appears instantly in the opportunities collection — this is a real-time write to Firestore. The opportunity is now live and visible to all students on the platform."
+
+PART 4 — STUDENT DISCOVERY & APPLICATION (3:30 – 5:00)
+Switch to student account
+
+"Now let me switch to a student account. I'll sign out and log in as a student."
+
+Sign out → login as student
+
+"On the Discover tab, students see all active opportunities in real time. I can search by keyword, filter by role type like Software Development or Design, and toggle remote-only opportunities."
+
+Demonstrate search and filters
+
+"This filtering happens locally in the OpportunityProvider using a filtered list method — so it's instant with no extra Firestore reads."
+
+Open opportunity detail
+
+"Let me tap on the opportunity we just posted. I can see all the details — the startup, role type, duration, stipend, required skills, and deadline."
+
+"I'll tap Apply Now. A bottom sheet slides up where I write my cover letter."
+
+Write cover letter and submit
+
+"The application is submitted. Watch Firestore — the application document appears immediately in the applications collection with status set to pending."
+
+Show Firestore → applications collection
+
+"The Apply button has also changed to Application Submitted — this is Provider state management in action. The AuthProvider checked hasApplied, updated the state, and the UI rebuilt automatically."
+
+Show My Applications tab
+
+"In the Applied tab, the student can track all their applications and see their current status in real time."
+
+PART 5 — STARTUP MANAGES APPLICATIONS (5:00 – 5:45)
+Switch back to startup account
+
+"Now let me switch back to the startup account. In the Applications tab, I can see the application Frank just submitted."
+
+"I can see the applicant's name, email, the opportunity they applied for, and their cover letter. I have two actions — Accept or Reject."
+
+Tap Accept
+
+"I'll accept this application. Watch Firestore — the status field updates from pending to accepted instantly."
+
+Show Firestore → applications → status: accepted
+
+"And if the student refreshes their applications screen, they'll see the status has changed to Accepted — this is real-time synchronization between two different user accounts through Firestore streams."
+
+PART 6 — STATE MANAGEMENT EXPLANATION (5:45 – 6:30)
+"Let me quickly explain how state management works in this app. I used the Provider package with ChangeNotifier."
+
+"There are four providers — AuthProvider, StartupProvider, OpportunityProvider, and ApplicationProvider. They're all registered at the root of the app in main.dart using MultiProvider."
+
+"When something changes — for example when a user bookmarks an opportunity — the AuthProvider calls notifyListeners(). Every widget that's listening with context.watch rebuilds automatically. Widgets that just need to call a method use context.read, which doesn't trigger rebuilds."
+
+"This gives clean separation between UI and business logic. The screens don't talk to Firebase directly — they go through the providers, which handle all Firestore operations."
+
+OUTRO (6:30 – 7:00)
+"To summarize — ALU InternHub solves a real problem at ALU. It uses Firebase Authentication with ALU email enforcement, Cloud Firestore for real-time CRUD operations, Provider for state management, and GoRouter for role-based navigation."
+
+"The architecture is feature-based, meaning each feature — auth, startups, opportunities, applications, profile — is fully self-contained and independently scalable."
+
+"Future improvements I would add include push notifications, resume uploads, an admin verification dashboard, and a skill-based recommendation system."
+
+"Thank you."
+
+Quick Reference Card
+Time	Section
+0:00 – 0:30	Intro + problem statement
+0:30 – 1:30	Auth + Firebase Console
+1:30 – 2:30	Startup onboarding + verification
+2:30 – 3:30	Post opportunity + Firestore
+3:30 – 5:00	Student discovery + apply
+5:00 – 5:45	Startup accepts application
+5:45 – 6:30	State management explanation
+6:30 – 7:00	Conclusion
+3 things to remember during the demo:
+
+Always show the Firebase Console side by side when doing any action
+
+Say "watch Firestore" before every write operation
+
+Use the words "real-time", "stream", "notifyListeners", "ChangeNotifier" — these are the keywords evaluators listen for
